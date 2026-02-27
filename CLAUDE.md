@@ -41,9 +41,9 @@ src/
 - Feature agents must import from src/components/, never create their own primitives
 
 ## Before Closing Any Task
-1. Run: npx tsc --noEmit (zero errors)
-2. Run: npx eslint src/ --ext .ts,.tsx (zero errors)
-3. Run: npx jest (no regressions)
+1. Run: npm run typecheck (zero errors)
+2. Run: npm run lint src/ --ext .ts,.tsx (zero errors)
+3. Run: npm test (no regressions)
 4. Update TASKS.md — move task to done, document your exports
 
 ## Commit Format
