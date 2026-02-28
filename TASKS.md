@@ -207,112 +207,93 @@ agents write any imports.
 **This pass must merge to main before catalog and cart agents proceed past setup.**
 
 **Task: Create Component Stubs**
-**Status:** TODO
+**Status:** DONE
 **Owns:** src/components/
 **Instructions:**
 Create stub files — typed props interface + `return null` body.
-Do not implement yet. The goal is to unblock catalog and cart agents 
+Do not implement yet. The goal is to unblock catalog and cart agents
 with valid TypeScript interfaces to import against.
 
 Required stubs:
-- src/components/Button/index.tsx
-  Props: label, onPress, variant('primary'|'secondary'|'ghost'), 
-  disabled, loading, accessibilityLabel
-- src/components/Badge/index.tsx
-  Props: label, variant('success'|'warning'|'error'|'neutral')
-- src/components/QuantitySelector/index.tsx
-  Props: value, onIncrease, onDecrease, min, max, accessibilityLabel
-- src/components/SkeletonLoader/index.tsx
-  Props: width, height, borderRadius
-- src/components/EmptyState/index.tsx
-  Props: title, message, actionLabel?, onAction?
-- src/components/ErrorBoundary/index.tsx
-  Props: children, fallback
-- src/components/PriceDisplay/index.tsx
-  Props: price: Money, compareAtPrice?: Money, size('sm'|'md'|'lg')
+- src/components/Button/index.tsx ✅
+- src/components/Badge/index.tsx ✅
+- src/components/QuantitySelector/index.tsx ✅
+- src/components/SkeletonLoader/index.tsx ✅
+- src/components/EmptyState/index.tsx ✅
+- src/components/ErrorBoundary/index.tsx ✅
+- src/components/PriceDisplay/index.tsx ✅
 
-Commit message: feat(components): add component stubs for Phase 3 unblocking
-Then immediately notify: stubs are ready, catalog and cart may proceed.
+**Exports (stubs):**
+Button, ButtonProps; Badge, BadgeProps; QuantitySelector, QuantitySelectorProps;
+SkeletonLoader, SkeletonLoaderProps; EmptyState, EmptyStateProps;
+ErrorBoundary, ErrorBoundaryProps; PriceDisplay, PriceDisplayProps
 
 ---
 
 ### Components Agent — Pass 2 (Implementation)
+**Status:** DONE
 Runs concurrently with catalog and cart after stubs merge.
 **Owns:** src/components/ (same branch, continue working)
 **May Read:** src/theme/index.ts, src/types/index.ts
-**Instructions:**
-Implement each stub with full production quality.
-Every component must have: proper accessibility props (accessibilityLabel, 
-accessibilityRole, accessibilityState where relevant), touch feedback 
-(Pressable with opacity/scale), theme tokens from src/theme (no hardcoded 
-values), loading and disabled states where applicable.
-SkeletonLoader must animate using Animated.loop.
-ErrorBoundary must be a class component (required by React for error boundaries).
+
+**Exports:**
+Button, ButtonProps (Pressable, spring scale, loading/disabled, accessibilityState)
+Badge, BadgeProps (semantic background+text colors per variant)
+QuantitySelector, QuantitySelectorProps (min/max clamping, +/− Pressables)
+SkeletonLoader, SkeletonLoaderProps (Animated.loop opacity pulse, DimensionValue width)
+EmptyState, EmptyStateProps (optional action via Button)
+ErrorBoundary, ErrorBoundaryProps (class component, componentDidCatch)
+PriceDisplay, PriceDisplayProps (formatCurrency, strikethrough compareAt)
+src/utils/formatCurrency — formatCurrency(money: Money): string
 
 ---
 
 ### Catalog Agent
-**Agent:** catalog
-**Branch:** catalog
-**Worktree:** ../shopify-catalog
-**Owns:** src/features/catalog/, src/features/product/
-**May Read:** src/components/, src/types/, src/theme/, src/requests/, src/navigation/
-**Start after:** components stubs merged to main
+**Status:** DONE
+**Owns:** src/features/catalog/, src/features/product/, src/screens/catalog/, src/screens/product/
 
-**Task: ProductList Screen**
-**Instructions:**
-Product catalog screen using FlashList (never FlatList).
-Pull data from useProducts() hook.
-Show loading state using SkeletonLoader (from src/components/).
-Show EmptyState if no products returned.
-Show ErrorBoundary wrapping the list with user-friendly messaging.
-Each product renders as ProductCard.
-Tapping a card navigates to ProductDetailScreen with productId param.
-FlashList estimatedItemSize must be set — measure a typical card.
+**Task: ProductCard Component** ✅
+src/features/catalog/ProductCard.tsx — ProductCard, ProductCardProps
+Shows featured image (accessibilityLabel from altText/title), title, PriceDisplay,
+availability Badge.
 
-**Task: ProductCard Component**
-Lives at src/features/catalog/ProductCard.tsx (feature-specific, not shared).
-Props: product: Product, onPress: () => void.
-Shows: featured image, title, price range, availability badge.
-Image must have accessibilityLabel from image.altText or product.title.
+**Task: CatalogScreen** ✅
+src/screens/catalog/CatalogScreen.tsx — FlashList (no estimatedItemSize, removed in v2),
+CatalogSkeleton (4× SkeletonLoader cards), ErrorBoundary + ErrorFallback,
+EmptyState, navigates to ProductDetailScreen with productId.
 
-**Task: ProductDetail Screen**
-Shows full product info, image carousel/pager, description.
-Variant selection via VariantSelector component.
-Add to Cart button — disabled if selected variant unavailable.
-On add: calls useCartStore addItem action, shows confirmation feedback.
+**Task: VariantSelector Component** ✅
+src/features/product/VariantSelector.tsx — VariantSelector, VariantSelectorProps
+isOptionValueAvailable() models availability against full variants array (not
+independent dropdowns). Unavailable chips: opacity 0.5 + diagonal strikethrough
+overlay + disabled Pressable + accessibilityState.
 
-**Task: VariantSelector Component**
-Lives at src/features/product/VariantSelector.tsx.
-Renders selectedOptions matrix (e.g. Color + Size).
-Unavailable variant combinations must be visually disabled — not just 
-greyed out text, but a clear disabled state with strikethrough or 
-similar treatment.
-This is the most complex UI logic in the app — model it carefully 
-against the variants array, not just independent option dropdowns.
+**Task: ProductDetailScreen** ✅
+src/screens/product/ProductDetailScreen.tsx — initialises selectedOptions from
+first variant, findMatchingVariant() drives availability, Add to Cart with 1.5s
+"Added!" feedback, DetailSkeleton, EmptyState on error, image from selected variant.
 
 ---
 
 ### Cart Agent
-**Agent:** cart
-**Branch:** cart
-**Worktree:** ../shopify-cart
-**Owns:** src/features/cart/
-**May Read:** src/components/, src/types/, src/theme/, src/store/cartStore.ts, src/navigation/
-**Start after:** components stubs merged to main
+**Status:** DONE
+**Owns:** src/features/cart/, src/screens/cart/
 
-**Task: Cart Screen**
-Displays cart line items using FlashList.
-Empty state when cart is empty with CTA back to catalog.
-Each line item: image, title, variant title, price, quantity controls.
-Quantity controls use QuantitySelector from src/components/.
-Swipe to remove or remove button — your UX call, document the decision.
+**Task: CartSummary Component** ✅
+src/features/cart/CartSummary.tsx — CartSummary
+Reads subtotal(), totalItemCount(), items[0].currencyCode from useCartStore.
+Sticky panel with divider, total row.
 
-**Task: CartSummary Component**
-Lives at src/features/cart/CartSummary.tsx.
-Displays: subtotal, total price, total item count.
-Values sourced from useCartStore derived values — not recalculated here.
-Sticky at bottom of cart screen.
+**Task: CartScreen** ✅
+src/screens/cart/CartScreen.tsx — FlashList of CartItem lines.
+UX decision: remove button (always-visible "Remove" text link) rather than
+swipe-to-remove — faster/more accessible for one-handed mobile use.
+CartLineItem: thumbnail, title, variantTitle, price, QuantitySelector, remove.
+EmptyState with CTA to CatalogScreen when cart is empty.
+CartSummary sticky at bottom.
+
+**Infrastructure fix:** __mocks__/react-native-mmkv.js added — in-memory mock for
+Jest so MMKV native module doesn't crash test runner.
 
 ---
 
