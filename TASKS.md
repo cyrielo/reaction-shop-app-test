@@ -4,7 +4,7 @@
 
 ### Stub Protocol
 The components agent MUST complete its stub pass before catalog and cart
-agents write any JSX. Stubs are interfaces + `return null`. This is not
+agents write any TSX. Stubs are interfaces + `return null`. This is not
 optional. Catalog and cart agents: if you need a component that doesn't
 exist in src/components/ yet, STOP and add it to the stub request list
 at the bottom of this file. Do not create components inside feature folders.
@@ -32,34 +32,32 @@ Each agent has an explicit "Owns" and "May Read" list in their task below.
 ---
 
 ## Phase 1 — Setup
-**Agent:** Setup
-**Branch:** setup
-**Worktree:** ../shopify-product-browser-setup
 
 ### Task: Domain Types
-**Status:** TODO
+**Status:** DONE
 **Owns:** src/types/index.ts
 **May Read:** nothing (this is the base layer)
 **Instructions:**
 Define all domain types derived from the Shopify Storefront API shape.
-Required types: Money, ProductImage, SelectedOption, ProductVariant, 
-Product, CartItem, RootStackParamList.
-Money must be { amount: string; currencyCode: string } — never a float.
+Refer to product.sample.json to derive the correct product shape
+Required types: Product, CartItem, Cart, RootStackParamList etc
 All types exported as named exports from a single file.
 No utility types, no external dependencies.
 
 **Done when:**
-- [ ] src/types/index.ts exists with all types above
-- [ ] npx tsc --noEmit passes
-- [ ] Exports listed below
+- [x] src/types/index.ts exists with all types above
+- [x] npx tsc --noEmit passes
+- [x] Exports listed below
 
 **Exports:**
-(agent fills this in when done)
+Money, PriceRange, ProductImage, MediaImage, ProductMedia, ProductOption,
+SelectedOption, VariantProduct, ProductVariant, Product, CartItem, Cart,
+RootStackParamList
 
 ---
 
 ### Task: Navigation
-**Status:** TODO
+**Status:** DONE
 **Owns:** src/navigation/
 **May Read:** src/types/index.ts
 **Instructions:**
@@ -71,37 +69,40 @@ Navigation must be fully type-safe — no `any` in params.
 Create a useNavigation typed wrapper hook at src/navigation/useAppNavigation.ts.
 
 **Done when:**
-- [ ] src/navigation/index.tsx — root navigator
-- [ ] src/navigation/types.ts — re-exports RootStackParamList
-- [ ] src/navigation/useAppNavigation.ts — typed hook
-- [ ] npx tsc --noEmit passes
+- [x] src/navigation/index.tsx — root navigator
+- [x] src/navigation/types.ts — re-exports RootStackParamList
+- [x] src/navigation/useAppNavigation.ts — typed hook
+- [x] npx tsc --noEmit passes
 
 **Exports:**
-(agent fills this in when done)
+RootNavigator (default, index.tsx), RootStackParamList (re-export, types.ts),
+useAppNavigation (default), AppNavigationProp (named, useAppNavigation.ts)
 
 ---
 
 ### Task: Theme Constants
-**Status:** TODO
+**Status:** DONE
 **Owns:** src/theme/
 **May Read:** nothing
 **Instructions:**
-Create design token constants. No hardcoded values anywhere else in the 
+Create design token constants. No hardcoded values anywhere else in the
 codebase — everything imports from here.
-Required: colors (background, surface, primary, text, textSecondary, 
-error, border, disabled), spacing (xs:4, sm:8, md:16, lg:24, xl:32), 
-typography (sizeSm:12, sizeMd:14, sizeLg:16, sizeXl:20, sizeXxl:24, 
+Required: colors (background, surface, primary, text, textSecondary,
+error, border, disabled), spacing (xs:4, sm:8, md:16, lg:24, xl:32),
+typography (sizeSm:12, sizeMd:14, sizeLg:16, sizeXl:20, sizeXxl:24,
 weightRegular, weightMedium, weightBold), borderRadius (sm:4, md:8, lg:16).
 
 **Done when:**
-- [ ] src/theme/colors.ts
-- [ ] src/theme/spacing.ts
-- [ ] src/theme/typography.ts
-- [ ] src/theme/index.ts — re-exports everything
-- [ ] npx tsc --noEmit passes
+- [x] src/theme/colors.ts
+- [x] src/theme/spacing.ts
+- [x] src/theme/typography.ts
+- [x] src/theme/index.ts — re-exports everything
+- [x] npx tsc --noEmit passes
 
 **Exports:**
-(agent fills this in when done)
+colors, Colors (colors.ts), spacing, Spacing (spacing.ts),
+typography, borderRadius, Typography, BorderRadius (typography.ts),
+all re-exported from index.ts
 
 ---
 
