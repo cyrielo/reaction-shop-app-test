@@ -9,7 +9,7 @@ import ProductCard from '../../features/catalog/ProductCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import EmptyState from '../../components/EmptyState';
 import ErrorBoundary from '../../components/ErrorBoundary';
-
+import useMediaQuery from '../../hooks/useMediaQuery';
 const SKELETON_COUNT = 4;
 
 const CatalogSkeleton: React.FC = () => (
@@ -39,6 +39,7 @@ const ErrorFallback: React.FC = () => (
 const CatalogScreen: React.FC = () => {
   const navigation = useAppNavigation();
   const { data: products, isLoading, isError } = useProducts();
+  const { breakpoint } = useMediaQuery();
 
   if (isLoading) {
     return <CatalogSkeleton />;
@@ -70,12 +71,13 @@ const CatalogScreen: React.FC = () => {
   );
 
   const keyExtractor = (item: Product): string => item.id;
-
+  const numColumns = (breakpoint === 'sm') ? 1 : ((breakpoint === 'md')) ? 2 : 3;
   return (
     <View style={styles.container}>
       <FlashList
         data={products}
         renderItem={renderItem}
+        numColumns={numColumns}
         keyExtractor={keyExtractor}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
