@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
           source={{ uri: featuredImage.url }}
           style={styles.image}
           accessibilityLabel={imageAlt}
-          resizeMode="cover"
+          resizeMode="contain"
         />
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]} />
