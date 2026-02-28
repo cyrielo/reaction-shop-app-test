@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types';
+import type { CatalogStackParamList } from '../../navigation/types';
 import type { ProductVariant, SelectedOption } from '../../types';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import useProduct from '../../hooks/useProduct';
@@ -18,7 +18,7 @@ import PriceDisplay from '../../components/PriceDisplay';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import EmptyState from '../../components/EmptyState';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetailScreen'>;
+type Props = NativeStackScreenProps<CatalogStackParamList, 'ProductDetailScreen'>;
 
 function buildInitialSelection(
   variants: ProductVariant[],
