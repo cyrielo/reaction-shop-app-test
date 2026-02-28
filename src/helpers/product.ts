@@ -93,9 +93,7 @@ const RawProductSchema = z.object({
   variants: z.array(VariantSchema),
 });
 
-export const ProductsResponseSchema = z.object({
-  products: z.array(RawProductSchema),
-});
+export const ProductsResponseSchema = z.array(RawProductSchema);
 
 type RawMoney = z.infer<typeof MoneySchema>;
 type RawPriceRange = z.infer<typeof PriceRangeSchema>;
