@@ -3,4 +3,7 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-screens|react-native-safe-area-context|react-native-gesture-handler|react-native-mmkv|@shopify/flash-list|@tanstack)/).*',
   ],
+  moduleNameMapper: {
+    'react-native-mmkv': '<rootDir>/__mocks__/react-native-mmkv.js',
+  },
 };
