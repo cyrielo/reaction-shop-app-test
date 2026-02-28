@@ -113,74 +113,82 @@ all re-exported from index.ts
 **Depends on:** Phase 1 merged to main. Pull main before starting.
 
 ### Task: MMKV Storage Abstraction
-**Status:** TODO
+**Status:** DONE
 **Owns:** src/storage/
 **May Read:** nothing
 **Instructions:**
-Create a typed storage abstraction over MMKV. No other file in the 
+Create a typed storage abstraction over MMKV. No other file in the
 codebase should ever import MMKV directly.
-Export a single storage object with: get<T>(key: string): T | null, 
+Export a single storage object with: get<T>(key: string): T | null,
 set<T>(key: string, value: T): void, delete(key: string): void.
 Keys must be defined as a const enum StorageKey in this file:
 CART = 'cart', PRODUCT_CACHE = 'product_cache'.
-The abstraction must be mockable for tests — export a createStorage 
+The abstraction must be mockable for tests — export a createStorage
 factory function as well as the default instance.
 
 **Done when:**
-- [ ] src/storage/index.ts
-- [ ] npx tsc --noEmit passes
+- [x] src/storage/index.ts
+- [x] npx tsc --noEmit passes
 
 **Exports:**
-(agent fills this in when done)
+StorageKey (const enum), Storage (interface), createStorage (factory),
+storage (default instance)
 
 ---
 
 ### Task: Cart Zustand Store
-**Status:** TODO
+**Status:** DONE
 **Owns:** src/store/cartStore.ts
 **May Read:** src/types/index.ts, src/storage/index.ts
 **Instructions:**
-Build the cart store using Zustand with persistence via the storage 
+Build the cart store using Zustand with persistence via the storage
 abstraction. Never use MMKV directly.
-State: items: CartItem[], 
-Actions: addItem(item: CartItem), increaseQuantity(variantId: string), 
+State: items: CartItem[],
+Actions: addItem(item: CartItem), increaseQuantity(variantId: string),
 removeItem(variantId: string), clearCart().
 Derived values (computed, not stored): subtotal, totalPrice, totalItemCount.
 Cart must rehydrate from storage on app start.
 Adding an item that already exists increases its quantity, not duplicates it.
 
 **Done when:**
-- [ ] src/store/cartStore.ts
-- [ ] npx tsc --noEmit passes
+- [x] src/store/cartStore.ts
+- [x] npx tsc --noEmit passes
 
 **Exports:**
-(agent fills this in when done)
+useCartStore (Zustand hook) — state: items; actions: addItem,
+increaseQuantity, removeItem, clearCart; derived: subtotal(),
+totalPrice(), totalItemCount()
 
 ---
 
 ### Task: TanStack Query Setup
-**Status:** TODO
-**Owns:** src/api/
+**Status:** DONE
+**Owns:** src/requests/
 **May Read:** src/types/index.ts, src/storage/index.ts
 **Instructions:**
 Set up QueryClient with persistQueryClient using MMKV as the persister.
-Configure: staleTime 5 minutes, cacheTime 24 hours so catalog is 
+Configure: staleTime 5 minutes, cacheTime 24 hours so catalog is
 available offline.
 Create useProducts() hook that fetches from the provided JSON feed URL.
 Create useProduct(id: string) hook for single product detail.
 Transform raw API response to match Product type from src/types/index.ts.
-The fetch URL should be a constant at the top of src/api/products.ts 
+The fetch URL should be a constant at the top of src/requests/products.ts
 so it can be swapped easily.
 
 **Done when:**
-- [ ] src/api/queryClient.ts — QueryClient + persister config
-- [ ] src/api/products.ts — fetch logic + transformers
-- [ ] src/api/hooks/useProducts.ts
-- [ ] src/api/hooks/useProduct.ts
-- [ ] npx tsc --noEmit passes
+- [x] src/requests/queryClient.ts — QueryClient + persister config
+- [x] src/requests/products.ts — fetch logic + transformers
+- [x] src/hooks/useProducts.ts
+- [x] src/hooks/useProduct.ts
+- [x] npx tsc --noEmit passes
 
 **Exports:**
-(agent fills this in when done)
+queryClient (src/requests/queryClient.ts),
+PRODUCTS_FEED_URL, transformProduct, fetchProducts, fetchProduct (src/requests/products.ts),
+useProducts, PRODUCTS_QUERY_KEY (src/hooks/useProducts.ts),
+useProduct, productQueryKey (src/hooks/useProduct.ts)
+Note: persistence uses dehydrate/hydrate from @tanstack/query-core via
+QueryCache.subscribe — @tanstack/react-query-persist-client not installed.
 
 ---
 
@@ -248,7 +256,7 @@ ErrorBoundary must be a class component (required by React for error boundaries)
 **Branch:** catalog
 **Worktree:** ../shopify-catalog
 **Owns:** src/features/catalog/, src/features/product/
-**May Read:** src/components/, src/types/, src/theme/, src/api/, src/navigation/
+**May Read:** src/components/, src/types/, src/theme/, src/requests/, src/navigation/
 **Start after:** components stubs merged to main
 
 **Task: ProductList Screen**

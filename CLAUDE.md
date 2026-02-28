@@ -12,9 +12,9 @@
 
 ## Folder Structure
 src/
-  api/          # fetch logic, response transformers
+  requests/          # fetch logic, response transformers
   components/   # shared UI primitives only (Button, Badge, etc.)
-  features/
+  screens/
     catalog/    # ProductList, ProductCard, useProducts
     cart/       # CartScreen, CartItem, CartSummary
     product/    # ProductDetail, VariantSelector
