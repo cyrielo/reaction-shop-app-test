@@ -17,7 +17,7 @@ import Button from '../../components/Button';
 import PriceDisplay from '../../components/PriceDisplay';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import EmptyState from '../../components/EmptyState';
-
+import useMediaQuery from '../../hooks/useMediaQuery';
 type Props = NativeStackScreenProps<CatalogStackParamList, 'ProductDetailScreen'>;
 
 function buildInitialSelection(
@@ -57,6 +57,7 @@ const DetailSkeleton: React.FC = () => (
 const ProductDetailScreen: React.FC<Props> = ({ route }) => {
   const { productId } = route.params;
   const { data: product, isLoading, isError } = useProduct(productId);
+  const { breakpoint } = useMediaQuery();
   const addItem = useCartStore(state => state.addItem);
 
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([]);
@@ -115,59 +116,70 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
     selectedVariant !== undefined && selectedVariant.availableForSale;
   const currentImage =
     selectedVariant?.image ?? product.images[0];
-
+  const largeScreen = breakpoint === 'lg';
+  const resizeMode = breakpoint === 'lg' ? 'cover' : 'contain';
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {currentImage !== undefined ? (
-        <Image
-          source={{ uri: currentImage.url }}
-          style={styles.image}
-          accessibilityLabel={currentImage.altText ?? product.title}
-          resizeMode="cover"
-        />
-      ) : (
-        <View style={[styles.image, styles.imagePlaceholder]} />
-      )}
+      <View style={{
+        flexDirection: (largeScreen) ? 'row' : 'column',
+        gap: 10,
+      }}>
+        {/* Image container */}
+        <View style={styles.imageContainer}>
+          {currentImage !== undefined ? (
+            <Image
+              source={{ uri: currentImage.url }}
+              style={styles.image}
+              accessibilityLabel={currentImage.altText ?? product.title}
+              resizeMode={resizeMode}
+            />
+          ) : (
+            <View style={[styles.image, styles.imagePlaceholder]} />
+          )}
+        </View>
+        {/* Description container */}
+        <View style={styles.descriptionContainer}>
+          <View style={styles.body}>
+            <Text style={styles.title}>{product.title}</Text>
 
-      <View style={styles.body}>
-        <Text style={styles.title}>{product.title}</Text>
+            {selectedVariant !== undefined && (
+              <PriceDisplay
+                price={selectedVariant.price}
+                compareAtPrice={selectedVariant.compareAtPrice ?? undefined}
+                size="lg"
+              />
+            )}
 
-        {selectedVariant !== undefined && (
-          <PriceDisplay
-            price={selectedVariant.price}
-            compareAtPrice={selectedVariant.compareAtPrice ?? undefined}
-            size="lg"
-          />
-        )}
+            {!canAddToCart && selectedVariant !== undefined && (
+              <Text style={styles.unavailable}>Currently unavailable</Text>
+            )}
 
-        {!canAddToCart && selectedVariant !== undefined && (
-          <Text style={styles.unavailable}>Currently unavailable</Text>
-        )}
+            {product.options.length > 0 && (
+              <VariantSelector
+                options={product.options}
+                variants={product.variants}
+                selectedOptions={selectedOptions}
+                onSelect={handleSelect}
+              />
+            )}
 
-        {product.options.length > 0 && (
-          <VariantSelector
-            options={product.options}
-            variants={product.variants}
-            selectedOptions={selectedOptions}
-            onSelect={handleSelect}
-          />
-        )}
+            <Text style={styles.description}>{product.description}</Text>
 
-        <Text style={styles.description}>{product.description}</Text>
-
-        <Button
-          label={addedFeedback ? 'Added!' : 'Add to Cart'}
-          onPress={handleAddToCart}
-          variant="primary"
-          disabled={!canAddToCart}
-          accessibilityLabel={
-            canAddToCart ? 'Add to cart' : 'This variant is unavailable'
-          }
-        />
+            <Button
+              label={addedFeedback ? 'Added!' : 'Add to Cart'}
+              onPress={handleAddToCart}
+              variant="primary"
+              disabled={!canAddToCart}
+              accessibilityLabel={
+                canAddToCart ? 'Add to cart' : 'This variant is unavailable'
+              }
+            />
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -177,9 +189,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    marginTop: spacing.sm,
+    marginHorizontal: spacing.md,
   },
   content: {
     paddingBottom: spacing.xl,
+  },
+  imageContainer: {
+    flex: 1
+  },
+  descriptionContainer: {
+    flex: 2
   },
   image: {
     width: '100%',
@@ -192,9 +212,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
     backgroundColor: colors.surface,
-    borderTopLeftRadius: borderRadius.lg,
-    borderTopRightRadius: borderRadius.lg,
-    marginTop: -borderRadius.lg,
   },
   title: {
     fontSize: typography.sizeXxl,
