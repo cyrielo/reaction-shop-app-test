@@ -67,6 +67,9 @@ const RootNavigator: React.FC = () => {
           tabBarInactiveTintColor: 'rgba(26,26,26,0.45)',
           tabBarLabelStyle: styles.tabLabel,
           tabBarItemStyle: styles.tabItem,
+          // Reserve space below content for the floating tab bar:
+          // bottom (24) + height (64) + breathing room (8) = 96
+          sceneStyle: styles.scene,
         }}
       >
         <Tab.Screen
@@ -131,6 +134,9 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     paddingTop: 5,
+  },
+  scene: {
+    paddingBottom: 96,
   },
 });
 
