@@ -1,1 +1,6 @@
-export type { RootStackParamList } from '../types';
+export type RootStackParamList = {
+  CatalogScreen: undefined;
+  ProductDetailScreen: { productId: string };
+  CartScreen: undefined;
+};
+
