@@ -44,16 +44,22 @@ const CartLineItem: React.FC<CartLineItemProps> = ({
         <Image
           source={{ uri: item.image.url }}
           style={styles.thumbnail}
+          accessibilityRole="image"
           accessibilityLabel={item.image.altText ?? item.title}
           resizeMode="cover"
         />
       ) : (
-        <View style={[styles.thumbnail, styles.thumbnailPlaceholder]} />
+        <View style={[styles.thumbnail, styles.thumbnailPlaceholder]} accessibilityElementsHidden />
       )}
 
       <View style={styles.lineBody}>
-        <Text style={styles.variantTitle}>{item.variantTitle}</Text>
-        <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+        <View
+          accessible
+          accessibilityLabel={`${item.variantTitle}, ${formatCurrency(item.price)}`}
+        >
+          <Text style={styles.variantTitle} importantForAccessibility="no">{item.variantTitle}</Text>
+          <Text style={styles.price} importantForAccessibility="no">{formatCurrency(item.price)}</Text>
+        </View>
 
         <View style={styles.lineFooter}>
           <QuantitySelector
@@ -61,7 +67,7 @@ const CartLineItem: React.FC<CartLineItemProps> = ({
             onIncrease={onIncrease}
             onDecrease={onDecrease}
             min={1}
-            accessibilityLabel={`Quantity for ${item.title}`}
+            productTitle={item.title}
           />
 
           <Pressable
@@ -70,7 +76,7 @@ const CartLineItem: React.FC<CartLineItemProps> = ({
             accessibilityLabel={`Remove ${item.title} from cart`}
             accessibilityRole="button"
           >
-            <Text style={styles.removeText}>Remove</Text>
+            <Text style={styles.removeText} importantForAccessibility="no">Remove</Text>
           </Pressable>
         </View>
       </View>

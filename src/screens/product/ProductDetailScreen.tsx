@@ -44,7 +44,13 @@ function findMatchingVariant(
 }
 
 const DetailSkeleton: React.FC = () => (
-  <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+  <ScrollView
+    style={styles.container}
+    contentContainerStyle={styles.content}
+    accessible
+    accessibilityLabel="Loading product details"
+    accessibilityRole="progressbar"
+  >
     <SkeletonLoader width="100%" height={320} />
     <View style={styles.cardBody}>
       <SkeletonLoader width="80%" height={28} />
@@ -135,11 +141,12 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
             <Image
               source={{ uri: currentImage.url }}
               style={styles.image}
+              accessibilityRole="image"
               accessibilityLabel={currentImage.altText ?? product.title}
               resizeMode={resizeMode}
             />
           ) : (
-            <View style={styles.imagePlaceholder} />
+            <View style={styles.imagePlaceholder} accessibilityElementsHidden />
           )}
         </Card>
         {/* Description container */}
@@ -155,7 +162,7 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
               )}
 
               {!canAddToCart && selectedVariant !== undefined && (
-                <Text style={styles.unavailable}>Currently unavailable</Text>
+                <Text style={styles.unavailable} accessibilityRole="alert">Currently unavailable</Text>
               )}
 
               {product.options.length > 0 && (
@@ -175,7 +182,7 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
                 variant="primary"
                 disabled={!canAddToCart || addedFeedback}
                 accessibilityLabel={
-                  canAddToCart ? 'Add to cart' : 'This variant is unavailable'
+                  addedFeedback ? 'Added to cart' : canAddToCart ? 'Add to cart' : 'This variant is unavailable'
                 }
               />
             </View>

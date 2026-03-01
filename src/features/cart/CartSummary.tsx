@@ -20,21 +20,33 @@ const CartSummary: React.FC = () => {
   return (
     <Card title="Cart Summary" style={styles.card}>
       <View style={styles.body}>
-        <View style={styles.row}>
-          <Text style={styles.label}>
+        <View
+          style={styles.row}
+          accessible
+          accessibilityLabel={`${itemCount} ${itemCount === 1 ? 'item' : 'items'}: ${formatCurrency(subtotalMoney)}`}
+        >
+          <Text style={styles.label} importantForAccessibility="no">
             {itemCount} {itemCount === 1 ? 'item' : 'items'}
           </Text>
-          <Text style={styles.subtotal}>{formatCurrency(subtotalMoney)}</Text>
+          <Text style={styles.subtotal} importantForAccessibility="no">{formatCurrency(subtotalMoney)}</Text>
         </View>
-        <View style={styles.divider} />
-        <View style={styles.row}>
-          <Text style={styles.subtotal}>Sub-total</Text>
-          <Text style={styles.totalValue}>{formatCurrency(subtotalMoney)}</Text>
+        <View style={styles.divider} accessibilityElementsHidden />
+        <View
+          style={styles.row}
+          accessible
+          accessibilityLabel={`Sub-total: ${formatCurrency(subtotalMoney)}`}
+        >
+          <Text style={styles.subtotal} importantForAccessibility="no">Sub-total</Text>
+          <Text style={styles.totalValue} importantForAccessibility="no">{formatCurrency(subtotalMoney)}</Text>
         </View>
-        <View style={styles.divider} />
-        <View style={styles.row}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>{formatCurrency(subtotalMoney)}</Text>
+        <View style={styles.divider} accessibilityElementsHidden />
+        <View
+          style={styles.row}
+          accessible
+          accessibilityLabel={`Total: ${formatCurrency(subtotalMoney)}`}
+        >
+          <Text style={styles.totalLabel} importantForAccessibility="no">Total</Text>
+          <Text style={styles.totalValue} importantForAccessibility="no">{formatCurrency(subtotalMoney)}</Text>
         </View>
       </View>
     </Card>

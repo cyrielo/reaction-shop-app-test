@@ -8,7 +8,7 @@ export interface QuantitySelectorProps {
   onDecrease: () => void;
   min?: number;
   max?: number;
-  accessibilityLabel: string;
+  productTitle: string;
 }
 
 const QuantitySelector: React.FC<QuantitySelectorProps> = ({
@@ -17,22 +17,22 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   onDecrease,
   min = 1,
   max,
-  accessibilityLabel,
+  productTitle,
 }) => {
   const atMin = value <= min;
   const atMax = max !== undefined && value >= max;
 
   return (
-    <View style={styles.container} accessibilityLabel={accessibilityLabel}>
+    <View style={styles.container}>
       <Pressable
         onPress={onDecrease}
         disabled={atMin}
         style={({ pressed }) => [styles.button, atMin && styles.buttonDisabled, pressed && styles.pressed]}
-        accessibilityLabel="Decrease quantity"
+        accessibilityLabel={`Decrease quantity of ${productTitle}`}
         accessibilityRole="button"
         accessibilityState={{ disabled: atMin }}
       >
-        <Text style={[styles.buttonText, atMin && styles.buttonTextDisabled]}>−</Text>
+        <Text style={[styles.buttonText, atMin && styles.buttonTextDisabled]} importantForAccessibility="no">−</Text>
       </Pressable>
 
       <Text style={styles.value} accessibilityLabel={`Quantity: ${value}`}>
@@ -43,11 +43,11 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
         onPress={onIncrease}
         disabled={atMax}
         style={({ pressed }) => [styles.button, atMax && styles.buttonDisabled, pressed && styles.pressed]}
-        accessibilityLabel="Increase quantity"
+        accessibilityLabel={`Increase quantity of ${productTitle}`}
         accessibilityRole="button"
         accessibilityState={{ disabled: !!atMax }}
       >
-        <Text style={[styles.buttonText, atMax && styles.buttonTextDisabled]}>+</Text>
+        <Text style={[styles.buttonText, atMax && styles.buttonTextDisabled]} importantForAccessibility="no">+</Text>
       </Pressable>
     </View>
   );
