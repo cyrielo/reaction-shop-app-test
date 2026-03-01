@@ -9,6 +9,7 @@ interface CartState {
 interface CartActions {
   addItem: (item: CartItem) => void;
   increaseQuantity: (variantId: string) => void;
+  decreaseQuantity: (variantId: string) => void;
   removeItem: (variantId: string) => void;
   clearCart: () => void;
 }
@@ -55,6 +56,14 @@ export const useCartStore = create<CartStore>((set, get) => ({
   increaseQuantity: (variantId: string): void => {
     const next = get().items.map(i =>
       i.variantId === variantId ? { ...i, quantity: i.quantity + 1 } : i,
+    );
+    persistItems(next);
+    set({ items: next });
+  },
+
+  decreaseQuantity: (variantId: string): void => {
+    const next = get().items.map(i =>
+      i.variantId === variantId ? { ...i, quantity: i.quantity - 1 } : i,
     );
     persistItems(next);
     set({ items: next });

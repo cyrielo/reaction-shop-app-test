@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,6 +9,7 @@ import type { RootTabParamList, CatalogStackParamList } from './types';
 import CatalogScreen from '../screens/catalog/CatalogScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import CartScreen from '../screens/cart/CartScreen';
+import { spacing, typography } from '../theme';
 
 const CatalogStack = createNativeStackNavigator<CatalogStackParamList>();
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -38,18 +39,23 @@ const GlassTabBackground = (): React.ReactElement => (
   </View>
 );
 
+const AppHeader = (): React.ReactElement => (
+  <Text style={styles.headerTitle} accessibilityRole="header">
+    Reaction
+  </Text>
+);
+
 function CatalogNavigator(): React.ReactElement {
   return (
-    <CatalogStack.Navigator initialRouteName="CatalogScreen">
-      <CatalogStack.Screen
-        name="CatalogScreen"
-        component={CatalogScreen}
-        options={{ title: 'Products' }}
-      />
+    <CatalogStack.Navigator
+      initialRouteName="CatalogScreen"
+      screenOptions={{ headerShown: false }}
+    >
+      <CatalogStack.Screen name="CatalogScreen" component={CatalogScreen} />
       <CatalogStack.Screen
         name="ProductDetailScreen"
         component={ProductDetailScreen}
-        options={{ title: 'Product' }}
+        options={{ headerShown: true, title: 'Product' }}
       />
     </CatalogStack.Navigator>
   );
@@ -61,14 +67,14 @@ const RootNavigator: React.FC = () => {
       <Tab.Navigator
         initialRouteName="Catalog"
         screenOptions={{
+          headerLeft: AppHeader,
+          headerTitle: 'Products',
           tabBarBackground: GlassTabBackground,
           tabBarStyle: styles.tabBar,
           tabBarActiveTintColor: '#008060',
           tabBarInactiveTintColor: 'rgba(26,26,26,0.45)',
           tabBarLabelStyle: styles.tabLabel,
           tabBarItemStyle: styles.tabItem,
-          // Reserve space below content for the floating tab bar:
-          // bottom (24) + height (64) + breathing room (8) = 96
           sceneStyle: styles.scene,
         }}
       >
@@ -76,7 +82,6 @@ const RootNavigator: React.FC = () => {
           name="Catalog"
           component={CatalogNavigator}
           options={{
-            headerShown: false,
             title: 'Catalog',
             tabBarIcon: HomeIcon,
           }}
@@ -95,6 +100,14 @@ const RootNavigator: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  headerTitle: {
+    fontFamily: 'Pacifico-Regular',
+    fontSize: 22,
+    color: '#5a5a5a',
+    letterSpacing: 0.5,
+    marginHorizontal: spacing.md,
+  },
+  // Glass tab bar
   glassContainer: {
     flex: 1,
     borderRadius: 28,
@@ -121,19 +134,18 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     elevation: 0,
     marginHorizontal: 20,
-    // Subtle drop shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 24,
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: typography.sizeMd,
     fontWeight: '600',
     letterSpacing: 0.2,
   },
   tabItem: {
-    paddingTop: 5,
+    height: 64
   },
   scene: {
     paddingBottom: 96,
