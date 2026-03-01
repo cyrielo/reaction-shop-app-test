@@ -28,6 +28,11 @@ const CartSummary: React.FC = () => {
         </View>
         <View style={styles.divider} />
         <View style={styles.row}>
+          <Text style={styles.subtotal}>Sub-total</Text>
+          <Text style={styles.totalValue}>{formatCurrency(subtotalMoney)}</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.row}>
           <Text style={styles.totalLabel}>Total</Text>
           <Text style={styles.totalValue}>{formatCurrency(subtotalMoney)}</Text>
         </View>
@@ -66,12 +71,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   totalLabel: {
-    fontSize: typography.sizeLg,
+    fontSize: typography.sizeMd,
     fontWeight: typography.weightBold,
     color: colors.text,
   },
   totalValue: {
-    fontSize: typography.sizeLg,
+    fontSize: typography.sizeMd,
     fontWeight: typography.weightBold,
     color: colors.primary,
   },
