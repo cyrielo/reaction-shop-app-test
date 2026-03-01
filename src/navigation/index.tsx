@@ -11,7 +11,7 @@ import CatalogScreen from '../screens/catalog/CatalogScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import CartScreen from '../screens/cart/CartScreen';
 import { colors, spacing, typography } from '../theme';
-
+import { useCartStore } from '../store/cartStore';
 // Root ref — can dispatch actions to any focused navigator in the tree
 const navigationRef = createNavigationContainerRef();
 
@@ -90,6 +90,8 @@ function CatalogNavigator(): React.ReactElement {
 }
 
 const RootNavigator: React.FC = () => {
+  const { totalItemCount } = useCartStore();
+  const cartItems = totalItemCount() || undefined;
   return (
     <NavigationContainer ref={navigationRef}>
       <Tab.Navigator
@@ -109,7 +111,7 @@ const RootNavigator: React.FC = () => {
           name="Catalog"
           component={CatalogNavigator}
           options={{
-            title: '',
+            title: 'Shop',
             tabBarIcon: HomeIcon,
           }}
         />
@@ -119,6 +121,7 @@ const RootNavigator: React.FC = () => {
           options={{
             title: 'Cart',
             tabBarIcon: CartIcon,
+            tabBarBadge: cartItems,
           }}
         />
       </Tab.Navigator>

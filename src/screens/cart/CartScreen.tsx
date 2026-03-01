@@ -89,7 +89,7 @@ const CartScreen: React.FC = () => {
       <EmptyState
         title="Your cart is empty"
         message="Add items from the catalog to get started."
-        actionLabel="Browse Products"
+        actionLabel="Continue Shopping"
         onAction={() => navigation.navigate('Catalog')}
       />
     );
