@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     overflow: 'hidden',
     marginHorizontal: spacing.md,
-    marginVertical: spacing.sm,
+    marginVertical: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
   },

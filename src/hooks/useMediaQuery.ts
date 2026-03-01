@@ -7,17 +7,19 @@ const useMediaQuery = () => {
   const currentBreakPoint = getBreakPointFromWidth(windowDimension.width);
 
   const [breakpoint, setBreakPoint] = useState<BreakPoint>(currentBreakPoint ?? 'sm');
+  const [windowWidth, setWindowWidth] = useState(windowDimension.width);
 
   const handler = useCallback(({ window }: { window: ScaledSize }) => {
     const { width } = window;
     setBreakPoint(bp => getBreakPointFromWidth(width) || bp );
+    setWindowWidth(width);
   }, []);
 
   useEffect(() => {
     const dimensionListener = Dimensions.addEventListener('change', handler);
     return () => dimensionListener?.remove();
   });
-  return { breakpoint }
+  return { breakpoint, windowWidth }
 };
 
 const getBreakPointFromWidth = (width:number): BreakPoint|undefined => {

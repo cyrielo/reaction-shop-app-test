@@ -38,7 +38,7 @@ const CartLineItem: React.FC<CartLineItemProps> = ({
   onDecrease,
   onRemove,
 }) => (
-  <Card title={item.title}>
+  <Card style={styles.cardItem} title={item.title}>
     <View style={styles.lineItem}>
       {item.image !== null && item.image !== undefined ? (
         <Image
@@ -149,6 +149,9 @@ const styles = StyleSheet.create({
   },
   cartSummarycontainer: {
     flex: 1,
+  },
+  cardItem: {
+    marginVertical: spacing.xs
   },
   lineItem: {
     flex: 2,

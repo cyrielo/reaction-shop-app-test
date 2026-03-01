@@ -12,10 +12,13 @@ import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import CartScreen from '../screens/cart/CartScreen';
 import { colors, spacing, typography } from '../theme';
 import { useCartStore } from '../store/cartStore';
+import DeviceInfo from 'react-native-device-info';
+
 // Root ref — can dispatch actions to any focused navigator in the tree
 const navigationRef = createNavigationContainerRef();
 
 const CatalogStack = createNativeStackNavigator<CatalogStackParamList>();
+const CartStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 interface TabIconProps {
@@ -73,7 +76,9 @@ function CatalogNavigator(): React.ReactElement {
   return (
     <CatalogStack.Navigator
       initialRouteName="CatalogScreen"
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false,
+        orientation: (DeviceInfo.isTablet()) ? 'all' : 'portrait'
+      }}
     >
       <CatalogStack.Screen
         name="CatalogScreen"
@@ -87,6 +92,24 @@ function CatalogNavigator(): React.ReactElement {
       />
     </CatalogStack.Navigator>
   );
+}
+
+function CartNavigator(): React.ReactElement {
+  return (
+    <CartStack.Navigator
+      initialRouteName='CartScreen'
+      screenOptions={{
+        headerShown: false,
+        orientation: (DeviceInfo.isTablet()) ? 'all' : 'portrait'
+      }}
+      >
+      <CartStack.Screen
+        name='CartScreen'
+        component={CartScreen}
+        options={{ headerShown: false, gestureEnabled: true }}
+      />
+    </CartStack.Navigator>
+  )
 }
 
 const RootNavigator: React.FC = () => {
@@ -117,7 +140,7 @@ const RootNavigator: React.FC = () => {
         />
         <Tab.Screen
           name="Cart"
-          component={CartScreen}
+          component={CartNavigator}
           options={{
             title: 'Cart',
             tabBarIcon: CartIcon,
