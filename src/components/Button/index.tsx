@@ -58,6 +58,8 @@ const Button: React.FC<ButtonProps> = ({
           <ActivityIndicator
             size="small"
             color={variant === 'primary' ? colors.surface : colors.primary}
+            importantForAccessibility="no"
+            accessibilityElementsHidden
           />
         ) : (
           <Text

@@ -13,7 +13,12 @@ import useMediaQuery from '../../hooks/useMediaQuery';
 const SKELETON_COUNT = 4;
 
 const CatalogSkeleton: React.FC = () => (
-  <View style={styles.skeletonContainer}>
+  <View
+    style={styles.skeletonContainer}
+    accessible
+    accessibilityLabel="Loading products"
+    accessibilityRole="progressbar"
+  >
     {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
       <View key={i} style={styles.skeletonCard}>
         <SkeletonLoader width="100%" height={200} />
@@ -28,7 +33,7 @@ const CatalogSkeleton: React.FC = () => (
 );
 
 const ErrorFallback: React.FC = () => (
-  <View style={styles.errorContainer}>
+  <View style={styles.errorContainer} accessibilityRole="alert">
     <Text style={styles.errorTitle}>Something went wrong</Text>
     <Text style={styles.errorMessage}>
       We couldn't load the products. Please try again.

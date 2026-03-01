@@ -26,11 +26,19 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
     compareAtPrice !== undefined &&
     parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
 
+  const a11yLabel = hasDiscount && compareAtPrice !== undefined
+    ? `${formatCurrency(price)}, was ${formatCurrency(compareAtPrice)}`
+    : formatCurrency(price);
+
   return (
-    <View style={styles.row}>
-      <Text style={[styles.price, { fontSize }]}>{formatCurrency(price)}</Text>
+    <View
+      style={styles.row}
+      accessible
+      accessibilityLabel={a11yLabel}
+    >
+      <Text style={[styles.price, { fontSize }]} importantForAccessibility="no">{formatCurrency(price)}</Text>
       {hasDiscount && compareAtPrice !== undefined && (
-        <Text style={[styles.compareAt, { fontSize }]}>
+        <Text style={[styles.compareAt, { fontSize }]} importantForAccessibility="no">
           {formatCurrency(compareAtPrice)}
         </Text>
       )}

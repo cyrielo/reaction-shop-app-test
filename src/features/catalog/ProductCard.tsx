@@ -20,12 +20,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       accessibilityLabel={`${product.title}, ${product.availableForSale ? 'available' : 'unavailable'}`}
       accessibilityRole="button"
+      accessibilityHint="Opens product details"
     >
       {featuredImage !== undefined ? (
         <Image
           source={{ uri: featuredImage.url }}
           style={styles.image}
           accessibilityLabel={imageAlt}
+          importantForAccessibility="no"
           resizeMode="contain"
         />
       ) : (

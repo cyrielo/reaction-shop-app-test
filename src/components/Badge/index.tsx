@@ -24,9 +24,11 @@ const TEXT_COLOR: Record<BadgeProps['variant'], string> = {
 const Badge: React.FC<BadgeProps> = ({ label, variant }) => (
   <View
     style={[styles.container, { backgroundColor: BG[variant] }]}
+    accessible
     accessibilityRole="text"
+    accessibilityLabel={label}
   >
-    <Text style={[styles.text, { color: TEXT_COLOR[variant] }]}>{label}</Text>
+    <Text style={[styles.text, { color: TEXT_COLOR[variant] }]} importantForAccessibility="no">{label}</Text>
   </View>
 );
 

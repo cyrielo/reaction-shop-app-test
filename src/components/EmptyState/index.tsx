@@ -16,8 +16,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   actionLabel,
   onAction,
 }) => (
-  <View style={styles.container} accessibilityRole="none">
-    <Text style={styles.title}>{title}</Text>
+  <View style={styles.container}>
+    <Text style={styles.title} accessibilityRole="header">{title}</Text>
     <Text style={styles.message}>{message}</Text>
     {actionLabel !== undefined && onAction !== undefined && (
       <Button
