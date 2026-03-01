@@ -96,7 +96,7 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
       quantity: 1,
     });
     setAddedFeedback(true);
-    setTimeout(() => setAddedFeedback(false), 1500);
+    setTimeout(() => setAddedFeedback(false), 1000);
   }, [product, selectedOptions, addItem]);
 
   if (isLoading) {
@@ -173,7 +173,7 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
                 label={addedFeedback ? 'Added!' : 'Add to Cart'}
                 onPress={handleAddToCart}
                 variant="primary"
-                disabled={!canAddToCart}
+                disabled={!canAddToCart || addedFeedback}
                 accessibilityLabel={
                   canAddToCart ? 'Add to cart' : 'This variant is unavailable'
                 }
