@@ -1,97 +1,268 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Reaction — Shopify Product Browser
 
-# Getting Started
+A React Native shopping app that fetches products from a Shopify-compatible JSON feed, lets users browse a catalog, view product details with variant selection, and manage a persistent cart.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## Table of Contents
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+1. [Prerequisites](#1-prerequisites)
+2. [Setup](#2-setup)
+3. [Environment Variables](#3-environment-variables)
+4. [Running the App](#4-running-the-app)
+5. [Running Tests](#5-running-tests)
+6. [Architecture](#6-architecture)
+7. [Notable Tradeoffs & Assumptions](#7-notable-tradeoffs--assumptions)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
+
+## 1. Prerequisites
+
+Ensure the following tools are installed **before** cloning the repo. If this is your first React Native project, follow the [official environment setup guide](https://reactnative.dev/docs/set-up-your-environment) for your OS.
+
+| Tool | Minimum version | Notes |
+|---|---|---|
+| Node.js | 22.11.0 | Enforced by `engines` in `package.json` |
+| npm | 10+ | Comes with Node |
+| Ruby | 3.x | Required for CocoaPods (iOS only) |
+| CocoaPods | 1.15+ | `gem install cocoapods` |
+| Xcode | 15+ | iOS builds — macOS only |
+| Android Studio | Hedgehog+ | Android builds; includes SDK & emulator |
+| Java (JDK) | 17 | Required by the Android toolchain |
+
+Verify your setup:
 
 ```sh
-# Using npm
+node --version          # should print v22.x.x
+npx react-native doctor # checks all environment dependencies
+```
+
+---
+
+## 2. Setup
+
+### Clone and install JS dependencies
+
+```sh
+git clone <repo-url>
+cd shopify-product-browser
+npm install
+```
+
+### iOS — link native dependencies
+
+Run this once after cloning, and again whenever you add or update a native package:
+
+```sh
+bundle install           # installs the correct CocoaPods version via Bundler
+bundle exec pod install  # links iOS native dependencies under ios/Pods/
+```
+
+### Android — no extra steps
+
+Gradle resolves native dependencies automatically on the first build.
+
+---
+
+## 3. Environment Variables
+
+**None required.** The product feed URL is a public GitHub Gist hardcoded in [`src/requests/products.ts`](src/requests/products.ts):
+
+```
+https://gist.githubusercontent.com/agorovyi/40dcd166a38b4d1e9156ad66c87111b7/raw/.../testProducts.json
+```
+
+To point the app at a different feed, update `PRODUCTS_FEED_URL` in that file. The feed must return a JSON array whose items conform to the `RawProductSchema` defined in [`src/helpers/product.ts`](src/helpers/product.ts).
+
+---
+
+## 4. Running the App
+
+### Step 1 — start the Metro bundler
+
+Metro is the JavaScript bundler that powers Fast Refresh. Keep it running in a dedicated terminal.
+
+```sh
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+### Step 2 — launch on a simulator or device
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Open a **second terminal** and run:
 
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+#### iOS
 
 ```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+To target a specific simulator:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```sh
+npm run ios -- --simulator="iPhone 16 Pro"
+```
 
-## Step 3: Modify your app
+#### Android
 
-Now that you have successfully run the app, let's make changes!
+Start an emulator from Android Studio (AVD Manager) first, then:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```sh
+npm run android
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Or connect a physical Android device with **USB debugging** enabled.
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### Reloading during development
 
-## Congratulations! :tada:
+| Platform | Reload action |
+|---|---|
+| iOS Simulator | Press `R` |
+| Android Emulator | Press `R` twice, or `Cmd ⌘ + M` → Reload |
+| Physical device (both) | Shake the device → tap Reload |
 
-You've successfully run and modified your React Native App. :partying_face:
+---
 
-### Now what?
+## 5. Running Tests
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+```sh
+npm test                                          # run the full suite
+npm test -- --watch                               # re-run on file changes
+npm test -- --testPathPattern="components"        # filter by path substring
+```
 
-# Troubleshooting
+### Type-check and lint
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+```sh
+npm run typecheck              # tsc --noEmit — must report zero errors
+npx eslint src/ --ext .ts,.tsx # must report zero errors
+```
 
-# Learn More
+### Test coverage by layer
 
-To learn more about React Native, take a look at the following resources:
+| Folder | What is tested |
+|---|---|
+| `__tests__/storage/` | MMKV abstraction — get / set / delete / round-trip |
+| `__tests__/requests/` | `fetchProducts`, `fetchProduct`, `queryClient` persistence |
+| `__tests__/helpers/` | Zod schema validation, `transformProduct` field mapping |
+| `__tests__/store/` | Zustand `cartStore` — all actions and derived selectors |
+| `__tests__/hooks/` | `useProducts`, `useProduct`, `useMediaQuery` |
+| `__tests__/components/` | UI primitives — rendering, accessibility, interactions |
+| `__tests__/features/` | `VariantSelector` availability logic, `ProductCard`, `CartSummary` |
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+---
+
+## 6. Architecture
+
+### High-level diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        React Native App                          │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                     Navigation Layer                        │ │
+│  │  RootNavigator (Bottom Tabs)                               │ │
+│  │  ├── Catalog Tab                                           │ │
+│  │  │   ├── CatalogScreen       (FlashList of ProductCards)  │ │
+│  │  │   └── ProductDetailScreen (variants + Add to Cart CTA) │ │
+│  │  └── Cart Tab                                              │ │
+│  │      └── CartScreen          (FlashList + CartSummary)    │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                │                       │                        │
+│       ┌────────┘               ┌───────┘                        │
+│       ▼                        ▼                                │
+│  ┌──────────────┐       ┌─────────────┐   ┌──────────────────┐  │
+│  │  TanStack    │       │   Zustand   │   │  src/components/ │  │
+│  │  Query       │       │  cartStore  │   │  (UI primitives) │  │
+│  │  server state│       │  cart state │   │  Button, Badge,  │  │
+│  │  + caching   │       │  + derived  │   │  PriceDisplay,   │  │
+│  └──────┬───────┘       │  selectors  │   │  QuantitySelector │  │
+│         │               └─────────────┘   └──────────────────┘  │
+│         ▼                      │                                │
+│  ┌──────────────┐              ▼                                │
+│  │ src/requests/│       ┌─────────────┐                         │
+│  │ products.ts  │       │ src/storage/│  MMKV abstraction       │
+│  │ queryClient  │──────▶│ index.ts    │  PRODUCT_CACHE  (query) │
+│  └──────┬───────┘       │             │  CART           (items) │
+│         │               └──────┬──────┘                         │
+│         │                      │                                │
+│         ▼                      ▼                                │
+│  Public JSON feed       react-native-mmkv                       │
+│  (Shopify-compatible)   (Nitro / JSI — synchronous native I/O)  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Folder structure
+
+```
+src/
+├── components/   # Shared UI primitives — Button, Badge, PriceDisplay, …
+├── features/     # Feature-scoped components — ProductCard, VariantSelector, CartSummary
+├── screens/      # Full screens mounted by the navigator
+│   ├── catalog/  #   CatalogScreen
+│   ├── product/  #   ProductDetailScreen
+│   └── cart/     #   CartScreen
+├── hooks/        # Shared hooks — useProducts, useProduct, useMediaQuery
+├── navigation/   # Navigator config and typed param lists
+├── requests/     # fetch functions and queryClient singleton
+├── store/        # Zustand stores — cartStore
+├── storage/      # MMKV abstraction (only file allowed to import MMKV directly)
+├── helpers/      # Zod schemas and domain transformers — product.ts
+├── theme/        # Colors, spacing, typography, borderRadius (all as const)
+├── types/        # Domain type definitions — Product, CartItem, Money, …
+└── utils/        # Pure utilities — formatCurrency
+```
+
+### Data flow — browsing and adding to cart
+
+```
+CatalogScreen
+  └─ useProducts()                    TanStack Query hook
+       └─ fetchProducts()             fetch → Zod.parse → transformProduct()
+            └─ PRODUCTS_FEED_URL      Public JSON feed
+  └─ FlashList → ProductCard[]
+       └─ onPress → navigate("ProductDetailScreen", { productId })
+
+ProductDetailScreen
+  └─ useProduct(id)                   Returns cached data if fresh (< 5 min)
+  └─ VariantSelector                  isOptionValueAvailable() computed per chip
+  └─ "Add to Cart" → cartStore.addItem()
+       └─ storage.set("cart", items)  Synchronous MMKV persist
+```
+
+### Offline / persistence strategy
+
+| Key | Store | Content | Written |
+|---|---|---|---|
+| `product_cache` | MMKV | Dehydrated TanStack Query state | On every cache mutation |
+| `cart` | MMKV | Serialised `CartItem[]` | On every cart action |
+
+On app start, `queryClient.ts` calls `restoreCache()`, which reads `product_cache` from MMKV and rehydrates the query cache — so the catalog loads instantly from disk even before the network request completes.
+
+---
+
+## 7. Notable Tradeoffs & Assumptions
+
+### Static JSON feed instead of Shopify Storefront API
+Products are fetched from a single public GitHub Gist endpoint rather than Shopify's GraphQL Storefront API. This eliminates the need for API keys or store credentials during development, but the catalogue is static. Switching to a real storefront would require replacing `src/requests/products.ts` with GraphQL queries and updating the Zod schemas accordingly.
+
+### `fetchProduct` re-fetches the full catalogue
+`fetchProduct(id)` calls `fetchProducts()` and filters client-side, because the static feed has no single-product endpoint. With the Storefront API this would be a targeted `product(id: $id)` query — one network round-trip instead of downloading all products.
+
+### Cart is local only — no Shopify checkout
+Cart state persists to MMKV on-device and survives restarts, but it is not synced to a Shopify checkout or customer account. Adding a real checkout flow would require the Storefront API's Cart mutations and user authentication.
+
+### Availability is computed client-side from feed data
+`isOptionValueAvailable()` in `VariantSelector` derives chip availability purely from the `availableForSale` flag on each variant returned by the feed. There is no real-time inventory check — stock status is only as fresh as the last successful fetch.
+
+### Single-currency display
+`formatCurrency` uses `Intl.NumberFormat` with the currency code carried on each `Money` object (currently CAD). Multi-currency switching and locale-aware formatting beyond `en-US` are not implemented.
+
+### No user authentication
+There is no sign-in, session token, or customer account integration. All state is anonymous and device-local.
+
+### FlashList v2 — automatic size estimation
+`@shopify/flash-list` v2 removed the `estimatedItemSize` prop; the app relies on FlashList's built-in automatic estimation. If performance degrades with large catalogues, providing explicit heights via `overrideItemLayout` would improve first-render accuracy.
+
+### No end-to-end tests
+The suite covers units, hooks, stores, and component integration via Jest + React Native Testing Library. Full user journeys are not covered by Detox or Maestro E2E tests.
