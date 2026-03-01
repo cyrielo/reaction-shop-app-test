@@ -240,29 +240,3 @@ ProductDetailScreen
 On app start, `queryClient.ts` calls `restoreCache()`, which reads `product_cache` from MMKV and rehydrates the query cache — so the catalog loads instantly from disk even before the network request completes.
 
 ---
-
-## 7. Notable Tradeoffs & Assumptions
-
-### Static JSON feed instead of Shopify Storefront API
-Products are fetched from a single public GitHub Gist endpoint rather than Shopify's GraphQL Storefront API. This eliminates the need for API keys or store credentials during development, but the catalogue is static. Switching to a real storefront would require replacing `src/requests/products.ts` with GraphQL queries and updating the Zod schemas accordingly.
-
-### `fetchProduct` re-fetches the full catalogue
-`fetchProduct(id)` calls `fetchProducts()` and filters client-side, because the static feed has no single-product endpoint. With the Storefront API this would be a targeted `product(id: $id)` query — one network round-trip instead of downloading all products.
-
-### Cart is local only — no Shopify checkout
-Cart state persists to MMKV on-device and survives restarts, but it is not synced to a Shopify checkout or customer account. Adding a real checkout flow would require the Storefront API's Cart mutations and user authentication.
-
-### Availability is computed client-side from feed data
-`isOptionValueAvailable()` in `VariantSelector` derives chip availability purely from the `availableForSale` flag on each variant returned by the feed. There is no real-time inventory check — stock status is only as fresh as the last successful fetch.
-
-### Single-currency display
-`formatCurrency` uses `Intl.NumberFormat` with the currency code carried on each `Money` object (currently CAD). Multi-currency switching and locale-aware formatting beyond `en-US` are not implemented.
-
-### No user authentication
-There is no sign-in, session token, or customer account integration. All state is anonymous and device-local.
-
-### FlashList v2 — automatic size estimation
-`@shopify/flash-list` v2 removed the `estimatedItemSize` prop; the app relies on FlashList's built-in automatic estimation. If performance degrades with large catalogues, providing explicit heights via `overrideItemLayout` would improve first-render accuracy.
-
-### No end-to-end tests
-The suite covers units, hooks, stores, and component integration via Jest + React Native Testing Library. Full user journeys are not covered by Detox or Maestro E2E tests.
