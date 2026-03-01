@@ -9,11 +9,12 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { CatalogStackParamList } from '../../navigation/types';
 import type { ProductVariant, SelectedOption } from '../../types';
-import { colors, spacing, typography, borderRadius } from '../../theme';
+import { colors, spacing, typography } from '../../theme';
 import useProduct from '../../hooks/useProduct';
 import { useCartStore } from '../../store/cartStore';
 import VariantSelector from '../../features/product/VariantSelector';
 import Button from '../../components/Button';
+import Card from '../../components/Card';
 import PriceDisplay from '../../components/PriceDisplay';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import EmptyState from '../../components/EmptyState';
@@ -45,7 +46,7 @@ function findMatchingVariant(
 const DetailSkeleton: React.FC = () => (
   <ScrollView style={styles.container} contentContainerStyle={styles.content}>
     <SkeletonLoader width="100%" height={320} />
-    <View style={styles.body}>
+    <View style={styles.cardBody}>
       <SkeletonLoader width="80%" height={28} />
       <SkeletonLoader width="40%" height={22} />
       <SkeletonLoader width="100%" height={80} />
@@ -126,10 +127,10 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
     >
       <View style={{
         flexDirection: (largeScreen) ? 'row' : 'column',
-        gap: 10,
+        gap: spacing.md,
       }}>
         {/* Image container */}
-        <View style={styles.imageContainer}>
+        <Card style={styles.imageCard}>
           {currentImage !== undefined ? (
             <Image
               source={{ uri: currentImage.url }}
@@ -138,47 +139,47 @@ const ProductDetailScreen: React.FC<Props> = ({ route }) => {
               resizeMode={resizeMode}
             />
           ) : (
-            <View style={[styles.image, styles.imagePlaceholder]} />
+            <View style={styles.imagePlaceholder} />
           )}
-        </View>
+        </Card>
         {/* Description container */}
         <View style={styles.descriptionContainer}>
-          <View style={styles.body}>
-            <Text style={styles.title}>{product.title}</Text>
+          <Card title={product.title}>
+            <View style={styles.cardBody}>
+              {selectedVariant !== undefined && (
+                <PriceDisplay
+                  price={selectedVariant.price}
+                  compareAtPrice={selectedVariant.compareAtPrice ?? undefined}
+                  size="lg"
+                />
+              )}
 
-            {selectedVariant !== undefined && (
-              <PriceDisplay
-                price={selectedVariant.price}
-                compareAtPrice={selectedVariant.compareAtPrice ?? undefined}
-                size="lg"
+              {!canAddToCart && selectedVariant !== undefined && (
+                <Text style={styles.unavailable}>Currently unavailable</Text>
+              )}
+
+              {product.options.length > 0 && (
+                <VariantSelector
+                  options={product.options}
+                  variants={product.variants}
+                  selectedOptions={selectedOptions}
+                  onSelect={handleSelect}
+                />
+              )}
+
+              <Text style={styles.description}>{product.description}</Text>
+
+              <Button
+                label={addedFeedback ? 'Added!' : 'Add to Cart'}
+                onPress={handleAddToCart}
+                variant="primary"
+                disabled={!canAddToCart}
+                accessibilityLabel={
+                  canAddToCart ? 'Add to cart' : 'This variant is unavailable'
+                }
               />
-            )}
-
-            {!canAddToCart && selectedVariant !== undefined && (
-              <Text style={styles.unavailable}>Currently unavailable</Text>
-            )}
-
-            {product.options.length > 0 && (
-              <VariantSelector
-                options={product.options}
-                variants={product.variants}
-                selectedOptions={selectedOptions}
-                onSelect={handleSelect}
-              />
-            )}
-
-            <Text style={styles.description}>{product.description}</Text>
-
-            <Button
-              label={addedFeedback ? 'Added!' : 'Add to Cart'}
-              onPress={handleAddToCart}
-              variant="primary"
-              disabled={!canAddToCart}
-              accessibilityLabel={
-                canAddToCart ? 'Add to cart' : 'This variant is unavailable'
-              }
-            />
-          </View>
+            </View>
+          </Card>
         </View>
       </View>
     </ScrollView>
@@ -195,23 +196,23 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xl,
   },
-  imageContainer: {
-    flex: 1
+  imageCard: {
+    flex: 1,
   },
   descriptionContainer: {
-    flex: 2
+    flex: 2,
   },
   image: {
     width: '100%',
     height: 320,
   },
   imagePlaceholder: {
+    width: '100%',
+    height: 320,
     backgroundColor: colors.border,
   },
-  body: {
-    padding: spacing.md,
+  cardBody: {
     gap: spacing.md,
-    backgroundColor: colors.surface,
   },
   title: {
     fontSize: typography.sizeXxl,

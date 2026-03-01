@@ -18,10 +18,12 @@ import type { CartItem } from '../../types';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { useCartStore } from '../../store/cartStore';
 import useAppNavigation from '../../navigation/useAppNavigation';
+import Card from '../../components/Card';
 import QuantitySelector from '../../components/QuantitySelector';
 import EmptyState from '../../components/EmptyState';
 import CartSummary from '../../features/cart/CartSummary';
 import { formatCurrency } from '../../utils/formatCurrency';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 interface CartLineItemProps {
   item: CartItem;
@@ -36,71 +38,51 @@ const CartLineItem: React.FC<CartLineItemProps> = ({
   onDecrease,
   onRemove,
 }) => (
-  <View style={styles.lineItem}>
-    {item.image !== null && item.image !== undefined ? (
-      <Image
-        source={{ uri: item.image.url }}
-        style={styles.thumbnail}
-        accessibilityLabel={item.image.altText ?? item.title}
-        resizeMode="cover"
-      />
-    ) : (
-      <View style={[styles.thumbnail, styles.thumbnailPlaceholder]} />
-    )}
-
-    <View style={styles.lineBody}>
-      <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
-      <Text style={styles.variantTitle}>{item.variantTitle}</Text>
-      <Text style={styles.price}>{formatCurrency(item.price)}</Text>
-
-      <View style={styles.lineFooter}>
-        <QuantitySelector
-          value={item.quantity}
-          onIncrease={onIncrease}
-          onDecrease={onDecrease}
-          min={1}
-          accessibilityLabel={`Quantity for ${item.title}`}
+  <Card title={item.title}>
+    <View style={styles.lineItem}>
+      {item.image !== null && item.image !== undefined ? (
+        <Image
+          source={{ uri: item.image.url }}
+          style={styles.thumbnail}
+          accessibilityLabel={item.image.altText ?? item.title}
+          resizeMode="cover"
         />
+      ) : (
+        <View style={[styles.thumbnail, styles.thumbnailPlaceholder]} />
+      )}
 
-        <Pressable
-          onPress={onRemove}
-          style={({ pressed }) => [styles.removeBtn, pressed && styles.removeBtnPressed]}
-          accessibilityLabel={`Remove ${item.title} from cart`}
-          accessibilityRole="button"
-        >
-          <Text style={styles.removeText}>Remove</Text>
-        </Pressable>
+      <View style={styles.lineBody}>
+        <Text style={styles.variantTitle}>{item.variantTitle}</Text>
+        <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+
+        <View style={styles.lineFooter}>
+          <QuantitySelector
+            value={item.quantity}
+            onIncrease={onIncrease}
+            onDecrease={onDecrease}
+            min={1}
+            accessibilityLabel={`Quantity for ${item.title}`}
+          />
+
+          <Pressable
+            onPress={onRemove}
+            style={({ pressed }) => [styles.removeBtn, pressed && styles.removeBtnPressed]}
+            accessibilityLabel={`Remove ${item.title} from cart`}
+            accessibilityRole="button"
+          >
+            <Text style={styles.removeText}>Remove</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
-  </View>
+  </Card>
 );
 
-const ItemSeparator: React.FC = () => <View style={separatorStyle.line} />;
-
-const separatorStyle = StyleSheet.create({
-  line: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.md,
-  },
-});
 
 const CartScreen: React.FC = () => {
   const navigation = useAppNavigation();
-  const items = useCartStore(state => state.items);
-  const increaseQuantity = useCartStore(state => state.increaseQuantity);
-  const removeItem = useCartStore(state => state.removeItem);
-
-  const handleDecrease = useCallback((item: CartItem): void => {
-    if (item.quantity <= 1) {
-      removeItem(item.variantId);
-    } else {
-      // Decrease by mutating quantity — store only exposes increaseQuantity,
-      // so we remove and re-add with decremented quantity
-      removeItem(item.variantId);
-      useCartStore.getState().addItem({ ...item, quantity: item.quantity - 1 });
-    }
-  }, [removeItem]);
+  const { items, increaseQuantity, removeItem, decreaseQuantity } = useCartStore();
+  const { breakpoint } = useMediaQuery();
 
   if (items.length === 0) {
     return (
@@ -117,24 +99,37 @@ const CartScreen: React.FC = () => {
     <CartLineItem
       item={item}
       onIncrease={() => increaseQuantity(item.variantId)}
-      onDecrease={() => handleDecrease(item)}
+      onDecrease={() => decreaseQuantity(item.variantId)}
       onRemove={() => removeItem(item.variantId)}
     />
   );
 
   const keyExtractor = (item: CartItem): string => item.variantId;
+  const largeScreen = breakpoint === 'lg';
 
   return (
-    <View style={styles.container}>
-      <FlashList
-        data={items}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={ItemSeparator}
-      />
-      <CartSummary />
+    <View style={{
+      ...styles.container,
+      flexDirection: (largeScreen) ? 'row' : 'column',
+      gap: spacing.md
+    }}>
+      <View style={{
+        flex: 2,
+      }}>
+        <FlashList
+          data={[...items]}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={null}
+        />
+      </View>
+      <View style={{
+        flex: (largeScreen) ? 1 : 0,
+        bottom: (largeScreen) ? 0 : spacing.md,
+        }}>
+        <CartSummary />
+      </View>
     </View>
   );
 };
@@ -142,15 +137,16 @@ const CartScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: spacing.sm,
     backgroundColor: colors.background,
+    marginHorizontal: spacing.md,
   },
-  list: {
-    paddingVertical: spacing.sm,
+  cartSummarycontainer: {
+    flex: 1,
   },
   lineItem: {
+    flex: 2,
     flexDirection: 'row',
-    padding: spacing.md,
-    backgroundColor: colors.surface,
     gap: spacing.md,
   },
   thumbnail: {
@@ -164,11 +160,6 @@ const styles = StyleSheet.create({
   lineBody: {
     flex: 1,
     gap: spacing.xs,
-  },
-  itemTitle: {
-    fontSize: typography.sizeMd,
-    fontWeight: typography.weightMedium,
-    color: colors.text,
   },
   variantTitle: {
     fontSize: typography.sizeSm,
